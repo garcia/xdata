@@ -119,12 +119,12 @@ void (*examples[])() = {
 };
 
 int main(int argc, char *argv[]) {
-	int i;
+    int i;
 
     for (i = 0; examples[i] != NULL; i++) {
         examples[i]();
         printf("\n");
     }
 
-	return 0;
+    return 0;
 }
