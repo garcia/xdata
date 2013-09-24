@@ -87,7 +87,7 @@
 #else
 #define X(identifier) XENUM_ID(identifier),
 #endif // XVALUE
-typedef enum {
+typedef enum XNAME {
     #include XENUM_FILE(XNAME)
 } XNAME;
 #if XVALUE

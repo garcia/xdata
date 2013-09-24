@@ -76,7 +76,8 @@ the project.
 * `XVALUE`: Enables specified values for enum members.
 	- `[options]` component: `#define XVALUE 1`
 	- `[optional-fields]` component: `VALUE([={value}])`, where `{value}` is an
-        integer. Mind the `=` sign.
+        integer and is prefixed by an equal sign. For example, `VALUE()` and
+        `VALUE(=5)` are both valid, but not `VALUE(5)`.
 * `XGROUP`: Enables grouping of enum members.
 	- `[options]` component: `#define XGROUP 1`
 	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
@@ -87,8 +88,8 @@ the project.
 
 #### Variables
 
-* `typedef enum { [prefix]{identifier}, [ [prefix]{identifier}, [ ... ] ] }
-        {name}`
+* `typedef enum {name} { [prefix]{identifier}, [ [prefix]{identifier},
+		[ ... ] ] } {name}`
 	- Defines the enum itself. If `XPREFIX` is not enabled, `[prefix]` has no
 		effect.
 * `int {name}_count`
@@ -133,6 +134,11 @@ the project.
 	- `[options]` component: `#define XGROUP 1`
 	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
         integer.
+* `XARRAY`: Enables array syntax for struct members.
+	- `[options]` component: `#define XARRAY 1`
+	- `[optional-fields]` component: `ARRAY([\[{array}\]])`, where `{array}` is
+		a positive integer and is surrounded by square braces. For example,
+		`ARRAY()` and `ARRAY([5])` are both valid, but not `ARRAY(5)`.
 
 #### Variables
 

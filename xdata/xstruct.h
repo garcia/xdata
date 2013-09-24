@@ -23,10 +23,20 @@
 
 // XGROUP: enable grouping of struct members.
 // Usage:
-//  #define XGROUP
-//     X(type, member) GROUP(1)
+//  #define XGROUP 1
+//  ...
+//  X(type, member) GROUP(1)
 #if XGROUP
 #define GROUP(g)
+#endif
+
+// XARRAY: enable array syntax in members.
+// Usage:
+//  #define XARRAY 1
+//  ...
+//  X(type, member) ARRAY([5]) // yields "type member[5];"
+#if XARRAY
+#define ARRAY(a)
 #endif
 
 #ifndef XSTRUCT_H_
@@ -76,10 +86,20 @@ const char *xstruct_format(char *typestr) {
 // Create the struct for this macro.
 // Example:
 //  typedef struct pixel { int x; int y; color *color; float alpha; }
+#ifdef XARRAY
+#define X(type, identifier) type identifier
+#undef ARRAY
+#define ARRAY(a) a;
+#else // XARRAY
 #define X(type, identifier) type identifier;
+#endif // XARRAY
 typedef struct XNAME {
     #include XSTRUCT_FILE(XNAME)
 } XNAME;
+#ifdef XARRAY
+#undef ARRAY
+#define ARRAY(a)
+#endif // XARRAY
 #undef X
 
 // Create the enum for this macro's members.
@@ -345,6 +365,12 @@ void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(v
 #undef GROUP
 #define GROUP(g)
 #endif // XGROUP
+
+#if XARRAY
+#undef XARRAY
+#undef ARRAY
+#define ARRAY(a)
+#endif // XARRAY
 
 #undef XSTRUCT_H_NESTED_
 #endif // XSTRUCT_H_NESTED_
