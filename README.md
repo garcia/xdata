@@ -87,13 +87,12 @@ the project.
 
 #### Variables
 
-* `typedef enum { [prefix]{identifier}, [ [prefix]{identifier}, [ ... ] ]
-        {name}_max } {name}`
+* `typedef enum { [prefix]{identifier}, [ [prefix]{identifier}, [ ... ] ] }
+        {name}`
 	- Defines the enum itself. If `XPREFIX` is not enabled, `[prefix]` has no
 		effect.
 * `int {name}_count`
-	- Contains the number of identifiers defined by the enum. This can differ
-		from `{name}_max` if `XVALUE` is enabled.
+	- Contains the number of identifiers defined by the enum.
 * `int {name}_values[{name}_count]`
 	- Holds the value of each identifier in an array.
 * `char *{name}_strs[{name}_count]`
@@ -105,15 +104,16 @@ the project.
 #### Methods
 
 * `unsigned int {name}_index(int value)`
-	- Get the index of the given value. Returns -1 for invalid values.
-		This is mostly useful for enums that have specified values (i.e. those
-		with the `XVALUE` option enabled).
+	- Get the index of the given value, or -1 for invalid input. This is mostly
+		useful for enums that have specified values (i.e. those with the
+        `XVALUE` option enabled).
 * `char *{name}_str(int value)`
-	- Get the string name of the given value.
+	- Get the string name of the given value, or NULL for invalid input.
 * `void {name}_iter(int callback(int))`
 	- Call the given function with each value until it returns nonzero.
 * `int {name}_group(int value)`
-	- Get the group of the given value. Only available if `XGROUP` is enabled.
+	- Get the group of the given value, or -1 for invalid input. Only available
+        if `XGROUP` is enabled.
 * `void {name}_group_iter(int group, int callback(int))`
 	- Call the given function with each value until it returns nonzero.
 
@@ -159,7 +159,8 @@ the project.
 		argument should be a member of that instance. Both are required to
 		determine what member the pointer refers to.
 * `void *{name}_member({name} *structure, int index)`
-	- Get a pointer to the index-th member of the struct.
+	- Get a pointer to the index-th member of the struct, or NULL for invalid
+        input.
 * `char *{name}_str({name} *structure, void *member)`
 	- Get the stringified name of a member, or NULL for invalid input.
 * `char *{name}_type_str({name} *structure, void *member)`
@@ -189,4 +190,4 @@ Examples
 
 
 See [example.c](example.c) and the files referenced in
-[xdata.h](xdata.h) for examples of XData in action.
+[xdata.h](xdata/xdata.h) for examples of XData in action.

@@ -182,7 +182,8 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member) {
 }
 #undef X
 
-// Get a pointer to the index-th member of the struct.
+// Get a pointer to the index-th member of the struct, or NULL for invalid
+// input.
 // Example:
 //  void *pixel_member(pixel *structure, int index) { ... }
 #define X(type, identifier)             \

@@ -79,7 +79,7 @@
 
 // Create the enum itself.
 // Example:
-//  typedef enum { Red, Green, Blue, White=10, Black, color_max } color;
+//  typedef enum { Red, Green, Blue, White=10, Black } color;
 #if XVALUE
 #define X(identifier) XENUM_ID(identifier)
 #undef VALUE
@@ -89,7 +89,6 @@
 #endif // XVALUE
 typedef enum {
     #include XENUM_FILE(XNAME)
-    XENUM_GLUE(XNAME, max)
 } XNAME;
 #if XVALUE
 #undef VALUE
@@ -197,7 +196,7 @@ int XENUM_GLUE(XNAME, groups)[] = {
 
 ////////// Function definitions.
 
-// Get the index of the given value. Returns -1 for invalid values.
+// Get the index of the given value, or -1 for invalid input.
 // Example:
 //  unsigned int color_index(color value) { ... }
 unsigned int XENUM_GLUE(XNAME, index)(XNAME value) {
@@ -210,11 +209,15 @@ unsigned int XENUM_GLUE(XNAME, index)(XNAME value) {
     return -1;
 }
 
-// Get the string name of the given value.
+// Get the string name of the given value, or NULL for invalid input.
 // Example:
 //  char *color_str(color value) { ... }
 char *XENUM_GLUE(XNAME, str)(XNAME value) {
-    return XENUM_GLUE(XNAME, strs)[XENUM_GLUE(XNAME, index)(value)];
+    int i = XENUM_GLUE(XNAME, index)(value);
+    if (i >= 0) {
+        return XENUM_GLUE(XNAME, strs)[XENUM_GLUE(XNAME, index)(value)];
+    }
+    return NULL;
 }
 
 // Call the given function with each value until it returns nonzero.
@@ -230,11 +233,15 @@ void XENUM_GLUE(XNAME, iter)(int callback(XNAME)) {
 }
 
 #if XGROUP
-// Get the group of the given value.
+// Get the group of the given value, or -1 for invalid input.
 // Example:
 //  int color_group(color value) { ... }
 int XENUM_GLUE(XNAME, group)(XNAME value) {
-    return XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, index)(value)];
+    int i = XENUM_GLUE(XNAME, index)(value);
+    if (i >= 0) {
+        return XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, index)(value)];
+    }
+    return -1;
 }
 
 // Call the function with each value in the group until it returns nonzero.
