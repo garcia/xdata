@@ -31,7 +31,8 @@ Usage
 
 Each data structure is defined in its own file, in the same directory as XData.
 Datafiles should be named `{datatype}.{name}.h`, placed in the same directory
-as xdata, and are generally of the following form:
+as xdata, and are generally of the following form (curly braces denote
+mandatory components, square braces denote optional components):
 
     #define XNAME {name}
     [options]
@@ -43,29 +44,51 @@ as xdata, and are generally of the following form:
 * `{datatype}`: either `enum` or `struct`.
 * `{name}`: an arbitrary name for the data structure. Must be a valid C
 	identifier, preferably without underscores.
+* `[options]`: a line-separated list of macro definitions that enable options.
+* `{mandatory-fields}`: a comma-separated list of fields; datatype specific.
+* `[optional-fields]`: a series of option macros of the form `OPTION(value)`.
+
+When using options that define macros to be placed in the `[optional-fields]`
+component, the macro must be present after *every* `X(...)` in that datafile.
+Empty values may be permitted by passing no arguments to the macro, but this
+depends on the option in question.
+
+Datafiles can be included directly, but care must be taken to prevent multiple
+inclusion (the datafile cannot accomplish this on its own). For this reason, it
+is generally easier to include the datafile in `xdata/xdata.h`, then include
+that file from elsewhere in the project.
+
+There must be one compilation unit in which `XDATA_OWNER` is defined before
+each datafile is processed. This can be done by compiling `xdata/xdata.c` into
+the project.
 
 
 ### Enums
 
 
-The `enum` datatype can be used to create enums. There is only one mandatory
-field: `identifier`, a C identifier to be placed into the enum.
+#### Mandatory fields
+
+* `X({identifier})`
+    -  `{identifier}`: a C identifier to be placed into the enum.
 
 #### Optional fields
 
 * `XVALUE`: Enables specified values for enum members.
 	- `[options]` component: `#define XVALUE 1`
-	- `[optional-fields]` component: `VALUE([=value])`
+	- `[optional-fields]` component: `VALUE([={value}])`, where `{value}` is an
+        integer. Mind the `=` sign.
 * `XGROUP`: Enables grouping of enum members.
 	- `[options]` component: `#define XGROUP 1`
-	- `[optional-fields]` component: `GROUP(group)`
+	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
+        integer.
 * `XPREFIX`: Prefixes each enum member with a partial identifier.
 	- `[options]` component: `#define XPREFIX prefix`
 	- `[optional-fields]` component: none.
 
 #### Variables
 
-* `typedef enum { [prefix]*, [ [prefix]*, [ ... ] ] {name}_max } {name}`
+* `typedef enum { [prefix]{identifier}, [ [prefix]{identifier}, [ ... ] ]
+        {name}_max } {name}`
 	- Defines the enum itself. If `XPREFIX` is not enabled, `[prefix]` has no
 		effect.
 * `int {name}_count`
@@ -98,24 +121,28 @@ field: `identifier`, a C identifier to be placed into the enum.
 ### Structs
 
 
-The `struct` datatype can be used to create structs. There are two mandatory
-fields: `type`, a C type specifier, and `member`, a C identifier to be used as
-the member's name.
+#### Mandatory fields
+
+* `X({type}, {member})`
+    - `type`: a C type specifier to be applied to this member.
+    - `member`: a C identifier to be used as the member's name.
 
 #### Optional fields
 
 * `XGROUP`: Enables grouping of struct members.
 	- `[options]` component: `#define XGROUP 1`
-	- `[optional-fields]` component: `GROUP(group)`
+	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
+        integer.
 
 #### Variables
 
-* `typedef struct {name} { *; [ *; [ ... ] ] } {name}`
+* `typedef struct {name} { {type} {member}; [ {type} {member}; [ ... ] ] }
+        {name}`
 	- Defines the struct itself.
-* `typedef enum { {name}_member_*, [ {name}_member_*, [ ... ] ]
-	{name}_members } {name}_enum`
+* `typedef enum { {name}_member_{member}, [ {name}_member_{member}, [ ... ] ]
+	    {name}_members } {name}_enum`
 	- Defines an enum corresponding to the members of the struct. This enum
-		cannot be altered, e.g. to have specified values.
+		cannot be altered e.g. to have specified values.
 * `char *{name}_strs[{name}_members]`
 	- Holds the string name of each member in an array.
 * `char *{name}_type_strs[{name}_members]`
