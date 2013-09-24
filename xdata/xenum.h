@@ -42,14 +42,13 @@
 // Usage:
 //  #define XPREFIX foo_
 //  X(identifier)                // becomes foo_identifier
-#ifdef XPREFIX
+#ifndef XPREFIX
+#define XPREFIX
+#endif
 // I don't know why I need 2 expansions this time, but it's rather annoying.
 #define XENUM_ID__(prefix, identifier) prefix ## identifier
 #define XENUM_ID_(prefix, identifier) XENUM_ID__(prefix, identifier)
 #define XENUM_ID(identifier) XENUM_ID_(XPREFIX, identifier)
-#else // XPREFIX
-#define XENUM_ID(identifier) identifier
-#endif // XPREFIX
 
 #ifndef XENUM_H_
 #define XENUM_H_
@@ -82,26 +81,21 @@
 // Example:
 //  typedef enum { Red, Green, Blue, White=10, Black, color_max } color;
 #if XVALUE
-// Constructor for enums with explicit values.
 #define X(identifier) XENUM_ID(identifier)
 #undef VALUE
 #define VALUE(v) v,
+#else
+#define X(identifier) XENUM_ID(identifier),
+#endif // XVALUE
 typedef enum {
     #include XENUM_FILE(XNAME)
     XENUM_GLUE(XNAME, max)
 } XNAME;
+#if XVALUE
 #undef VALUE
 #define VALUE(v)
-#undef X
-#else // XVALUE
-// Constructor for enums without explicit values.
-#define X(identifier) XENUM_ID(identifier),
-typedef enum {
-    #include XENUM_FILE(XNAME)
-    XENUM_GLUE(XNAME, max)
-} XNAME;
-#undef X
 #endif // XVALUE
+#undef X
 
 ////////// Variable declarations.
 
@@ -277,9 +271,7 @@ void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME)) {
 #define VALUE(v)
 #endif // XVALUE
 
-#ifdef XPREFIX
 #undef XPREFIX
-#endif // XPREFIX
 #undef XENUM_ID
 
 #undef XENUM_H_NESTED_

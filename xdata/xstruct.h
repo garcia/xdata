@@ -182,7 +182,7 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member) {
 }
 #undef X
 
-// Get a pointer to the Nth member of the struct.
+// Get a pointer to the index-th member of the struct.
 // Example:
 //  void *pixel_member(pixel *structure, int index) { ... }
 #define X(type, identifier)             \
@@ -219,7 +219,8 @@ char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member) {
     return NULL;
 }
 
-// Call the given function with each member's value until it returns nonzero.
+// Call the given function with a pointer to each member until it returns
+// nonzero.
 // Example:
 //  void pixel_iter(pixel *structure, int group, int callback(void *)) { ... }
 void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *)) {
@@ -314,7 +315,8 @@ int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member) {
     return -1;
 }
 
-// Call the given function with a pointer to each member until it returns nonzero.
+// Call the given function with a pointer to each member in the group until it
+// returns nonzero.
 // Example:
 //  void pixel_group_iter(pixel *structure, int group, int callback(void *)) { ... }
 void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *)) {
