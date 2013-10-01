@@ -102,7 +102,7 @@ typedef enum XNAME {
 // Example:
 //  enum color_indices { color_index_Red, color_index_Green, color_index_Blue,
 //                       color_index_White, color_index_Black, color_count };
-#define X(identifier) XENUM_GLUE(XENUM_GLUE(XNAME, index), XENUM_ID(identifier)),
+#define X(identifier) XENUM_GLUE(XENUM_GLUE(XNAME, index), identifier),
 enum XENUM_GLUE(XNAME, indices) {
 	#include XENUM_FILE(XNAME)
 	XENUM_GLUE(XNAME, count)

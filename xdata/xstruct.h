@@ -107,10 +107,10 @@ typedef struct XNAME {
 // Create the enum for this macro's members.
 // enum { pixel_member_x, pixel_member_y, pixel_member_color, pixel_member_alpha, pixel_members };
 #define X(type, identifier) XSTRUCT_GLUE(XSTRUCT_GLUE(XNAME, member), identifier),
-typedef enum {
+enum XSTRUCT_GLUE(XNAME, enum) {
     #include XSTRUCT_FILE(XNAME)
     XSTRUCT_GLUE(XNAME, members)
-} XSTRUCT_GLUE(XNAME, enum);
+};
 #undef X
 
 // Holds the string name of each member in an array.

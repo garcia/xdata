@@ -88,12 +88,18 @@ the project.
 
 #### Variables
 
-* `typedef enum {name} { [prefix]{identifier}, [ [prefix]{identifier},
-		[ ... ] ] } {name}`
+* `typedef enum {name} {
+		[prefix]{identifier} [value], [
+		[prefix]{identifier} [value], [ ... ] ]
+		} {name}`
 	- Defines the enum itself. If `XPREFIX` is not enabled, `[prefix]` has no
-		effect.
-* `int {name}_count`
-	- Contains the number of identifiers defined by the enum.
+		effect. Likewise for `XVALUE` / `[value]`.
+* `enum {name}_indices {
+		{name}_index_{identifier}, [
+		{name}_index_{identifier}, [ ... ] ]
+		{name}_count }`
+	- Used to calculate the number of identifiers defined by the enum. Note
+		the absence of `[value]` in this enum.
 * `int {name}_values[{name}_count]`
 	- Holds the value of each identifier in an array.
 * `char *{name}_strs[{name}_count]`
@@ -134,21 +140,30 @@ the project.
 	- `[options]` component: `#define XGROUP 1`
 	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
         integer.
-* `XARRAY`: Enables array syntax for struct members.
+* `XSUFFIX`: Enables suffixes for struct members. This can be used to create
+	arrays and bitfields.
 	- `[options]` component: `#define XARRAY 1`
-	- `[optional-fields]` component: `ARRAY([\[{array}\]])`, where `{array}` is
-		a positive integer and is surrounded by square braces. For example,
-		`ARRAY()` and `ARRAY([5])` are both valid, but not `ARRAY(5)`.
+	- `[optional-fields]` component: `ARRAY([suffix])`, where `[suffix]` is
+		any syntactically valid C code when placed after a struct member
+		declaration. `SUFFIX([5])` can be used to make an array of size 5;
+		`SUFFIX(:1)` can be used to make a bitfield of size 1. `SUFFIX()` with
+		no arguments must be used for other members in the same struct that do
+		not require a suffix.
 
 #### Variables
 
-* `typedef struct {name} { {type} {member}; [ {type} {member}; [ ... ] ] }
-        {name}`
-	- Defines the struct itself.
-* `typedef enum { {name}_member_{member}, [ {name}_member_{member}, [ ... ] ]
-	    {name}_members } {name}_enum`
-	- Defines an enum corresponding to the members of the struct. This enum
-		cannot be altered e.g. to have specified values.
+* `typedef struct {name} {
+		{type} {member} [suffix]; [
+		{type} {member} [suffix]; [ ... ] ]
+		} {name}`
+	- Defines the struct itself. If `XSUFFIX` is not enabled, `[suffix]` has no
+		effect.
+* `enum {name}_enum {
+		{name}_member_{member}, [
+		{name}_member_{member}, [ ... ] ]
+	    {name}_members }`
+	- Defines an enum corresponding to the members of the struct. Used
+		primarily to calculate the number of members.
 * `char *{name}_strs[{name}_members]`
 	- Holds the string name of each member in an array.
 * `char *{name}_type_strs[{name}_members]`
