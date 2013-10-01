@@ -96,40 +96,37 @@ typedef enum XNAME {
 #endif // XVALUE
 #undef X
 
+// Create the index enum. This is used for determining the number of enum
+// members; if XVALUE is enabled, the value of the last member can not be
+// relied upon for this purpose.
+// Example:
+//  enum color_indices { color_index_Red, color_index_Green, color_index_Blue,
+//                       color_index_White, color_index_Black, color_count };
+#define X(identifier) XENUM_GLUE(XENUM_GLUE(XNAME, index), XENUM_ID(identifier)),
+enum XENUM_GLUE(XNAME, indices) {
+	#include XENUM_FILE(XNAME)
+	XENUM_GLUE(XNAME, count)
+};
+#undef X
+
 ////////// Variable declarations.
 
-// Contains the number of identifiers in the enum. This can differ from the
-// "max" identifier at the end if any values are explicitly set.
-// Example:
-//  int color_count;
-int XENUM_GLUE(XNAME, count);
-
-#define X(identifier) 1+
 // Holds the value of each identifier in an array.
 // Example:
 //  color color_values[5];
-XNAME XENUM_GLUE(XNAME, values)[
-    #include XENUM_FILE(XNAME)
-    0];
+XNAME XENUM_GLUE(XNAME, values)[XENUM_GLUE(XNAME, count)];
 
 // Holds the string name of each identifier in an array.
 // Example:
 //  char *color_strs[5];
-char *XENUM_GLUE(XNAME, strs)[
-    #include XENUM_FILE(XNAME)
-    0];
-#undef X
+char *XENUM_GLUE(XNAME, strs)[XENUM_GLUE(XNAME, count)];
 
 #if XGROUP
 
 // Holds the group of each identifier in an array.
 // Example:
 //  int color_groups[5];
-#define X(identifier) 1+
-int XENUM_GLUE(XNAME, groups)[
-    #include XENUM_FILE(XNAME)
-    0];
-#undef X
+int XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, count)];
 
 #endif // XGROUP
 
@@ -149,15 +146,6 @@ void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME));
 // for each enum.
 
 ////////// Variable definitions.
-
-// Create the enum count.
-// Example:
-//  int color_count = 5;
-#define X(identifier) 1+
-int XENUM_GLUE(XNAME, count) =
-        #include XENUM_FILE(XNAME)
-        0;
-#undef X
 
 // Create the value array.
 // Example:
