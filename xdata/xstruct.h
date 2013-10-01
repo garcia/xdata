@@ -30,13 +30,15 @@
 #define GROUP(g)
 #endif
 
-// XARRAY: enable array syntax in members.
+// XSUFFIX: enable suffixes for each member.
 // Usage:
-//  #define XARRAY 1
+//  #define XSUFFIX 1
 //  ...
-//  X(type, member) ARRAY([5]) // yields "type member[5];"
-#if XARRAY
-#define ARRAY(a)
+//  X(type, member) SUFFIX([5]) // type member[5]; (array syntax)
+//  X(type, member) SUFFIX(:4)  // type member:4; (bitfield syntax)
+//  X(type, member) SUFFIX()    // type member; (SUFFIX is required if enabled)
+#if XSUFFIX
+#define SUFFIX(a)
 #endif
 
 #ifndef XSTRUCT_H_
@@ -53,7 +55,7 @@
 #define XSTRUCT_STR(identifier) XSTRUCT_STR_EXPANDED(identifier)
 #define XSTRUCT_GLUE_EXPANDED(prefix, suffix) prefix ## _ ## suffix
 #define XSTRUCT_GLUE(prefix, suffix) XSTRUCT_GLUE_EXPANDED(prefix, suffix)
-#define XSTRUCT_FILE(name) XENUM_STR(struct.name.h)
+#define XSTRUCT_FILE(name) XSTRUCT_STR(struct.name.h)
 
 #define XSTRUCT_PRINT_LENGTH 32
 
@@ -86,20 +88,20 @@ const char *xstruct_format(char *typestr) {
 // Create the struct for this macro.
 // Example:
 //  typedef struct pixel { int x; int y; color *color; float alpha; }
-#ifdef XARRAY
+#ifdef XSUFFIX
 #define X(type, identifier) type identifier
-#undef ARRAY
-#define ARRAY(a) a;
-#else // XARRAY
+#undef SUFFIX
+#define SUFFIX(s) s;
+#else // XSUFFIX
 #define X(type, identifier) type identifier;
-#endif // XARRAY
+#endif // XSUFFIX
 typedef struct XNAME {
     #include XSTRUCT_FILE(XNAME)
 } XNAME;
-#ifdef XARRAY
-#undef ARRAY
-#define ARRAY(a)
-#endif // XARRAY
+#ifdef XSUFFIX
+#undef SUFFIX
+#define SUFFIX(a)
+#endif // XSUFFIX
 #undef X
 
 // Create the enum for this macro's members.
@@ -303,7 +305,7 @@ char *XSTRUCT_GLUE(XNAME, print_member)(XNAME *structure, void *member, const ch
 char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format, const char *sep) {
     int i;
     int n_members = XSTRUCT_GLUE(XNAME, members);
-    int formatted_size = XSTRUCT_PRINT_LENGTH * n_members;
+    unsigned int formatted_size = XSTRUCT_PRINT_LENGTH * n_members;
     char *member;
     char *formatted = malloc(formatted_size);
     formatted[0] = '\0';
@@ -366,11 +368,11 @@ void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(v
 #define GROUP(g)
 #endif // XGROUP
 
-#if XARRAY
-#undef XARRAY
-#undef ARRAY
-#define ARRAY(a)
-#endif // XARRAY
+#if XSUFFIX
+#undef XSUFFIX
+#undef SUFFIX
+#define SUFFIX(a)
+#endif // XSUFFIX
 
 #undef XSTRUCT_H_NESTED_
 #endif // XSTRUCT_H_NESTED_
