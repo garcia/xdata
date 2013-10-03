@@ -29,15 +29,6 @@
 #define GROUP(g)
 #endif // XGROUP
 
-// XVALUE: enable assigning values to enum identifiers.
-// Usage:
-//  #define XVALUE
-//  X(identifier1) VALUE(=10)
-//  X(identifier2) VALUE()        // implicitly set to 11
-#if XVALUE
-#define VALUE(v)
-#endif // XVALUE
-
 // XPREFIX: add a prefix before each identifier.
 // Usage:
 //  #define XPREFIX foo_
@@ -80,29 +71,19 @@
 // Create the enum itself.
 // Example:
 //  typedef enum { Red, Green, Blue, White=10, Black } color;
-#if XVALUE
-#define X(identifier) XENUM_ID(identifier)
-#undef VALUE
-#define VALUE(v) v,
-#else
-#define X(identifier) XENUM_ID(identifier),
-#endif // XVALUE
+#define X(identifier, ...) XENUM_ID(identifier) __VA_ARGS__,
 typedef enum XNAME {
     #include XENUM_FILE(XNAME)
 } XNAME;
-#if XVALUE
-#undef VALUE
-#define VALUE(v)
-#endif // XVALUE
 #undef X
 
 // Create the index enum. This is used for determining the number of enum
-// members; if XVALUE is enabled, the value of the last member can not be
-// relied upon for this purpose.
+// members; if any members have their values explicitly set, the value of the
+// last member can not be relied upon for this purpose.
 // Example:
 //  enum color_indices { color_index_Red, color_index_Green, color_index_Blue,
 //                       color_index_White, color_index_Black, color_count };
-#define X(identifier) XENUM_GLUE(XENUM_GLUE(XNAME, index), identifier),
+#define X(identifier, ...) XENUM_GLUE(XENUM_GLUE(XNAME, index), identifier),
 enum XENUM_GLUE(XNAME, indices) {
 	#include XENUM_FILE(XNAME)
 	XENUM_GLUE(XNAME, count)
@@ -150,7 +131,7 @@ void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void 
 // Create the value array.
 // Example:
 //  color color_values[] = { Red, Green, Blue, White, Black };
-#define X(identifier) XENUM_ID(identifier),
+#define X(identifier, ...) XENUM_ID(identifier),
 XNAME XENUM_GLUE(XNAME, values)[] = {
     #include XENUM_FILE(XNAME)
 };
@@ -159,7 +140,7 @@ XNAME XENUM_GLUE(XNAME, values)[] = {
 // Create the string array.
 // Example:
 //  char *color_strs[] = { "Red", "Green", "Blue", "White", "Black" };
-#define X(identifier) XENUM_STR(XENUM_ID(identifier)),
+#define X(identifier, ...) XENUM_STR(XENUM_ID(identifier)),
 char *XENUM_GLUE(XNAME, strs)[] = {
     #include XENUM_FILE(XNAME)
 };
@@ -170,7 +151,7 @@ char *XENUM_GLUE(XNAME, strs)[] = {
 // Create the group array.
 // Example:
 //  int color_groups[] = { Color, Color, Color, Grayscale, Grayscale };
-#define X(identifier)
+#define X(identifier, ...)
 #undef GROUP
 #define GROUP(g) g,
 int XENUM_GLUE(XNAME, groups)[] = {
@@ -251,7 +232,7 @@ void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void 
 
 ////////// Cleanup.
 
-#define X(identifier)
+#define X(identifier, ...)
 #undef XNAME
 
 #if XGROUP
@@ -259,12 +240,6 @@ void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void 
 #undef GROUP
 #define GROUP(g)
 #endif // XGROUP
-
-#if XVALUE
-#undef XVALUE
-#undef VALUE
-#define VALUE(v)
-#endif // XVALUE
 
 #undef XPREFIX
 #undef XENUM_ID

@@ -68,16 +68,13 @@ the project.
 
 #### Mandatory fields
 
-* `X({identifier})`
-    -  `{identifier}`: a C identifier to be placed into the enum.
+* `X({identifier}[, ={value}])`
+    - `{identifier}`: a C identifier to be placed into the enum.
+    - `{value}`: a value to explicitly assign to the member. For example,
+    	`X(foo)` and `X(foo, =5)` are both valid, but `X(foo, 5)` is not.
 
 #### Optional fields
 
-* `XVALUE`: Enables specified values for enum members.
-	- `[options]` component: `#define XVALUE 1`
-	- `[optional-fields]` component: `VALUE([={value}])`, where `{value}` is an
-        integer and is prefixed by an equal sign. For example, `VALUE()` and
-        `VALUE(=5)` are both valid, but not `VALUE(5)`.
 * `XGROUP`: Enables grouping of enum members.
 	- `[options]` component: `#define XGROUP 1`
 	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
@@ -89,11 +86,12 @@ the project.
 #### Variables
 
 * `typedef enum {name} {
-		[prefix]{identifier} [value], [
-		[prefix]{identifier} [value], [ ... ] ]
+		[prefix]{identifier} [={value}], [
+		[prefix]{identifier} [={value}], [ ... ] ]
 		} {name}`
-	- Defines the enum itself. If `XPREFIX` is not enabled, `[prefix]` has no
-		effect. Likewise for `XVALUE` / `[value]`.
+	- Defines the enum itself. `[prefix]` is only present if `XPREFIX` is
+		enabled. `[={value}]` is only present if the member has an explicitly
+		assigned value.
 * `enum {name}_indices {
 		{name}_index_{identifier}, [
 		{name}_index_{identifier}, [ ... ] ]
@@ -112,8 +110,7 @@ the project.
 
 * `unsigned int {name}_index(int value)`
 	- Get the index of the given value, or -1 for invalid input. This is mostly
-		useful for enums that have specified values (i.e. those with the
-        `XVALUE` option enabled).
+		useful for enums that have members with explicitly specified values.
 * `char *{name}_str(int value)`
 	- Get the string name of the given value, or NULL for invalid input.
 * `void {name}_iter(int callback(int, void *), void *data)`
@@ -132,9 +129,14 @@ the project.
 
 #### Mandatory fields
 
-* `X({type}, {member})`
-    - `type`: a C type specifier to be applied to this member.
-    - `member`: a C identifier to be used as the member's name.
+* `X({type}, {member}[, {suffix}])`
+    - `{type}`: a C type specifier to be applied to this member.
+    - `{member}`: a C identifier to be used as the member's name.
+    - `{suffix}`: a suffix to be placed after the member's declaration. This
+    	can be used to create arrays and bitfields. For example,
+    	`X(int, foo, [10])`, `X(int, foo, :1)`, and `X(int, foo)` are all valid
+    	and specify an array, a one-bit bitfield, and a regular int,
+    	respectively.
 
 #### Optional fields
 
@@ -142,15 +144,6 @@ the project.
 	- `[options]` component: `#define XGROUP 1`
 	- `[optional-fields]` component: `GROUP({group})`, where `{group}` is an
         integer.
-* `XSUFFIX`: Enables suffixes for struct members. This can be used to create
-	arrays and bitfields.
-	- `[options]` component: `#define XARRAY 1`
-	- `[optional-fields]` component: `ARRAY([suffix])`, where `[suffix]` is
-		any syntactically valid C code when placed after a struct member
-		declaration. `SUFFIX([5])` can be used to make an array of size 5;
-		`SUFFIX(:1)` can be used to make a bitfield of size 1. `SUFFIX()` with
-		no arguments must be used for other members in the same struct that do
-		not require a suffix.
 
 #### Variables
 
@@ -158,8 +151,8 @@ the project.
 		{type} {member} [suffix]; [
 		{type} {member} [suffix]; [ ... ] ]
 		} {name}`
-	- Defines the struct itself. If `XSUFFIX` is not enabled, `[suffix]` has no
-		effect.
+	- Defines the struct itself. `[suffix]` is only present if the member has a
+		suffix assigned.
 * `enum {name}_enum {
 		{name}_member_{member}, [
 		{name}_member_{member}, [ ... ] ]

@@ -30,17 +30,6 @@
 #define GROUP(g)
 #endif
 
-// XSUFFIX: enable suffixes for each member.
-// Usage:
-//  #define XSUFFIX 1
-//  ...
-//  X(type, member) SUFFIX([5]) // type member[5]; (array syntax)
-//  X(type, member) SUFFIX(:4)  // type member:4; (bitfield syntax)
-//  X(type, member) SUFFIX()    // type member; (SUFFIX is required if enabled)
-#if XSUFFIX
-#define SUFFIX(a)
-#endif
-
 #ifndef XSTRUCT_H_
 #define XSTRUCT_H_
 // Everything in this block should only show up once per compilation unit.
@@ -65,7 +54,7 @@ const char *xstruct_format(char *typestr);
 // Everything in this block should only show up in a single compilation unit.
 
 // Retrieves the printf format string associated with the given type string.
-#define X(type, identifier)             \
+#define X(type, identifier, ...)        \
     if (strcmp(#type, typestr) == 0) {  \
         return #identifier;             \
     }
@@ -88,25 +77,15 @@ const char *xstruct_format(char *typestr) {
 // Create the struct for this macro.
 // Example:
 //  typedef struct pixel { int x; int y; color *color; float alpha; }
-#ifdef XSUFFIX
-#define X(type, identifier) type identifier
-#undef SUFFIX
-#define SUFFIX(s) s;
-#else // XSUFFIX
-#define X(type, identifier) type identifier;
-#endif // XSUFFIX
+#define X(type, identifier, ...) type identifier __VA_ARGS__;
 typedef struct XNAME {
     #include XSTRUCT_FILE(XNAME)
 } XNAME;
-#ifdef XSUFFIX
-#undef SUFFIX
-#define SUFFIX(a)
-#endif // XSUFFIX
 #undef X
 
 // Create the enum for this macro's members.
 // enum { pixel_member_x, pixel_member_y, pixel_member_color, pixel_member_alpha, pixel_members };
-#define X(type, identifier) XSTRUCT_GLUE(XSTRUCT_GLUE(XNAME, member), identifier),
+#define X(type, identifier, ...) XSTRUCT_GLUE(XSTRUCT_GLUE(XNAME, member), identifier),
 enum XSTRUCT_GLUE(XNAME, enum) {
     #include XSTRUCT_FILE(XNAME)
     XSTRUCT_GLUE(XNAME, members)
@@ -156,7 +135,7 @@ void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(v
 // Create the string array of member names.
 // Example:
 //  char *pixel_members[] = { "x", "y", "color", "alpha" };
-#define X(type, identifier) #identifier,
+#define X(type, identifier, ...) #identifier,
 char *XSTRUCT_GLUE(XNAME, strs)[] = {
     #include XSTRUCT_FILE(XNAME)
 };
@@ -164,7 +143,7 @@ char *XSTRUCT_GLUE(XNAME, strs)[] = {
 
 // Create the string array of types.
 // char *pixel_members = { "int", "int", "color *", "float" };
-#define X(type, identifier) #type,
+#define X(type, identifier, ...) #type,
 char *XSTRUCT_GLUE(XNAME, type_strs)[] = {
     #include XSTRUCT_FILE(XNAME)
 };
@@ -175,7 +154,7 @@ char *XSTRUCT_GLUE(XNAME, type_strs)[] = {
 // Create the group array.
 // Example:
 //  int pixel_groups[] = { pix_pos, pix_pos, pix_other, pix_other };
-#define X(type, identifier)
+#define X(type, identifier, ...)
 #undef GROUP
 #define GROUP(g) g,
 int XSTRUCT_GLUE(XNAME, groups)[] = {
@@ -192,7 +171,7 @@ int XSTRUCT_GLUE(XNAME, groups)[] = {
 // Get the index of the member, or -1 for invalid input.
 // Example:
 //  void *pixel_index(pixel *structure, int index) { ... }
-#define X(type, identifier)                 \
+#define X(type, identifier, ...)                 \
     if (member == &structure->identifier) { \
         return i;                           \
     }                                       \
@@ -208,7 +187,7 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member) {
 // input.
 // Example:
 //  void *pixel_member(pixel *structure, int index) { ... }
-#define X(type, identifier)             \
+#define X(type, identifier, ...)             \
     if (i == index) {                   \
         return &structure->identifier;  \
     }                                   \
@@ -261,7 +240,7 @@ void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), v
 // according to the type but falls back to the member's location in memory.
 // Example:
 //  char *pixel_print_member(pixel *structure, void *member, const char *format) { ... }
-#define X(type, identifier)                                                     \
+#define X(type, identifier, ...)                                                     \
     if (strcmp(#type, member_type) XSTRUCT_CMP 0) {                             \
         int formatted_length = snprintf(formatted,                              \
                     formatter_length + XSTRUCT_PRINT_LENGTH, formatter,         \
@@ -359,7 +338,7 @@ void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(v
 
 ////////// Cleanup.
 
-#define X(type, identifier)
+#define X(type, identifier, ...)
 #undef XNAME
 
 #if XGROUP
@@ -367,12 +346,6 @@ void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(v
 #undef GROUP
 #define GROUP(g)
 #endif // XGROUP
-
-#if XSUFFIX
-#undef XSUFFIX
-#undef SUFFIX
-#define SUFFIX(a)
-#endif // XSUFFIX
 
 #undef XSTRUCT_H_NESTED_
 #endif // XSTRUCT_H_NESTED_
