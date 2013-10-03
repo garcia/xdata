@@ -84,7 +84,9 @@ typedef struct XNAME {
 #undef X
 
 // Create the enum for this macro's members.
-// enum { pixel_member_x, pixel_member_y, pixel_member_color, pixel_member_alpha, pixel_members };
+// Example:
+//  enum { pixel_member_x, pixel_member_y, pixel_member_color,
+//         pixel_member_alpha, pixel_members };
 #define X(type, identifier, ...) XSTRUCT_GLUE(XSTRUCT_GLUE(XNAME, member), identifier),
 enum XSTRUCT_GLUE(XNAME, enum) {
     #include XSTRUCT_FILE(XNAME)
@@ -117,13 +119,13 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member);
 void *XSTRUCT_GLUE(XNAME, member)(XNAME *structure, int index);
 char *XSTRUCT_GLUE(XNAME, str)(XNAME *structure, void *member);
 char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member);
-void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), void * data);
+int XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(XNAME *, void *, void *), void * data);
 char *XSTRUCT_GLUE(XNAME, print_member)(XNAME *structure, void *member, const char *format);
 char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format, const char *sep);
 
 #if XGROUP
 int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member);
-void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *, void *), void *data);
+int XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(XNAME *, void *, void *), void *data);
 #endif
 
 #ifdef XDATA_OWNER
@@ -171,7 +173,7 @@ int XSTRUCT_GLUE(XNAME, groups)[] = {
 // Get the index of the member, or -1 for invalid input.
 // Example:
 //  void *pixel_index(pixel *structure, int index) { ... }
-#define X(type, identifier, ...)                 \
+#define X(type, identifier, ...)            \
     if (member == &structure->identifier) { \
         return i;                           \
     }                                       \
@@ -187,7 +189,7 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member) {
 // input.
 // Example:
 //  void *pixel_member(pixel *structure, int index) { ... }
-#define X(type, identifier, ...)             \
+#define X(type, identifier, ...)        \
     if (i == index) {                   \
         return &structure->identifier;  \
     }                                   \
@@ -221,17 +223,24 @@ char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member) {
     return NULL;
 }
 
-// Call the given function with a pointer to each member until it returns
-// nonzero.
+// Call the given function with a pointer to the struct, each member, and a
+// user-specified pointer until it returns nonzero. If the callback returns
+// nonzero, this function returns the same value. Otherwise it returns zero
+// after the callback has been executed for each member.
 // Example:
-//  void pixel_iter(pixel *structure, int group, int callback(void *)) { ... }
-void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), void * data) {
+//  int pixel_iter(pixel *structure, int callback(pixel *, void *, void *),
+//                  void *data) { ... }
+int XSTRUCT_GLUE(XNAME, iter)(XNAME *structure,
+		int callback(XNAME *, void *, void *), void *data) {
     int i;
+    int rtn;
     for (i = 0; i < XSTRUCT_GLUE(XNAME, members); i++) {
-        if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i), data)) {
-            return;
+        if ((rtn = callback(structure,
+        		XSTRUCT_GLUE(XNAME, member)(structure, i), data))) {
+            return rtn;
         }
     }
+    return 0;
 }
 
 // Allocate and return a formatted string containing the member's name and
@@ -240,7 +249,7 @@ void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), v
 // according to the type but falls back to the member's location in memory.
 // Example:
 //  char *pixel_print_member(pixel *structure, void *member, const char *format) { ... }
-#define X(type, identifier, ...)                                                     \
+#define X(type, identifier, ...)                                                \
     if (strcmp(#type, member_type) XSTRUCT_CMP 0) {                             \
         int formatted_length = snprintf(formatted,                              \
                     formatter_length + XSTRUCT_PRINT_LENGTH, formatter,         \
@@ -281,7 +290,8 @@ char *XSTRUCT_GLUE(XNAME, print_member)(XNAME *structure, void *member, const ch
 // value, concatenated by the given separator.
 // Example:
 //  char *pixel_print(pixel *structure, const char *format, const char *sep) { ... }
-char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format, const char *sep) {
+char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format,
+		const char *sep) {
     int i;
     int n_members = XSTRUCT_GLUE(XNAME, members);
     unsigned int formatted_size = XSTRUCT_PRINT_LENGTH * n_members;
@@ -292,7 +302,8 @@ char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format, const cha
         member = XSTRUCT_GLUE(XNAME, print_member)(structure,
                 XSTRUCT_GLUE(XNAME, member)(structure, i), format);
         if (strlen(formatted) + strlen(member) > formatted_size) {
-            formatted_size = strlen(formatted) + strlen(member) + strlen(sep) + 1;
+            formatted_size = strlen(formatted) + strlen(member) + strlen(sep)
+            		+ 1;
             formatted = realloc(formatted, formatted_size);
         }
         strcat(formatted, member);
@@ -317,19 +328,26 @@ int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member) {
     return -1;
 }
 
-// Call the given function with a pointer to each member in the group until it
-// returns nonzero.
+// Call the given function with a pointer to the struct, each member in the
+// group, and a user-specified pointer until it returns nonzero. If the
+// callback returns nonzero, this function returns the same value. Otherwise
+// it returns zero after the callback has been executed for each member.
 // Example:
-//  void pixel_group_iter(pixel *structure, int group, int callback(void *)) { ... }
-void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *, void *), void *data) {
+//  int pixel_group_iter(pixel *structure, int group, int callback(pixel *,
+//						  void *, void *), void *data) { ... }
+int XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group,
+		int callback(XNAME *, void *, void *), void *data) {
     int i;
+    int rtn;
     for (i = 0; i < XSTRUCT_GLUE(XNAME, members); i++) {
         if (XSTRUCT_GLUE(XNAME, groups)[i] == group) {
-            if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i), data)) {
-                return;
+            if ((rtn = callback(structure,
+            		XSTRUCT_GLUE(XNAME, member)(structure, i), data))) {
+                return rtn;
             }
         }
     }
+    return 0;
 }
 
 #endif // XGROUP
