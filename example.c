@@ -5,17 +5,17 @@
 
 // Functions defined / used by examples.
 
-int color_callback(color c) {
+int color_callback(color c, void *data) {
     printf("%d ", c);
     return 0;
 }
 
-int pos_callback(void *ptr) {
+int pos_callback(void *ptr, void *data) {
     printf("%d ", *(int *)ptr);
     return 0;
 }
 
-int pixel_callback(void *ptr) {
+int pixel_callback(void *ptr, void *data) {
     printf("%p ", ptr);
     return 0;
 }
@@ -31,7 +31,7 @@ void ex_color_str() {
 }
 
 void ex_color_iter() {
-    color_iter(color_callback); // 0 1 2 10 11
+    color_iter(color_callback, NULL); // 0 1 2 10 11
 }
     
 void ex_color_group() {
@@ -39,9 +39,9 @@ void ex_color_group() {
 }
 
 void ex_color_group_iter() {
-    color_group_iter(Color, color_callback); // 0 1 2
+    color_group_iter(Color, color_callback, NULL); // 0 1 2
     printf("/ "); // /
-    color_group_iter(Grayscale, color_callback); // 10 11
+    color_group_iter(Grayscale, color_callback, NULL); // 10 11
 }
 
 // Example usage of xstruct.h, illustrated via struct.pixel.h and enum.pixeltype.h.
@@ -68,7 +68,7 @@ void ex_pixel_type_str() {
 
 void ex_pixel_iter() {
     pixel p = { 5, 10, Red, 0.5 };
-    pixel_iter(&p, pixel_callback); // 0x?? 0x?? 0x?? 0x??
+    pixel_iter(&p, pixel_callback, NULL); // 0x?? 0x?? 0x?? 0x??
 }
 
 void ex_pixel_print_member() {
@@ -92,7 +92,7 @@ void ex_pixel_group() {
 
 void ex_pixel_group_iter() {
     pixel p = { 5, 10, Red, 0.5 };
-    pixel_group_iter(&p, pix_pos, pos_callback); // 5 10
+    pixel_group_iter(&p, pix_pos, pos_callback, NULL); // 5 10
 }
 
 // Run each example.

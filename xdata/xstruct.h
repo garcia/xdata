@@ -138,13 +138,13 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member);
 void *XSTRUCT_GLUE(XNAME, member)(XNAME *structure, int index);
 char *XSTRUCT_GLUE(XNAME, str)(XNAME *structure, void *member);
 char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member);
-void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *));
+void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), void * data);
 char *XSTRUCT_GLUE(XNAME, print_member)(XNAME *structure, void *member, const char *format);
 char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format, const char *sep);
 
 #if XGROUP
 int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member);
-void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *));
+void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *, void *), void *data);
 #endif
 
 #ifdef XDATA_OWNER
@@ -246,10 +246,10 @@ char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member) {
 // nonzero.
 // Example:
 //  void pixel_iter(pixel *structure, int group, int callback(void *)) { ... }
-void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *)) {
+void XSTRUCT_GLUE(XNAME, iter)(XNAME *structure, int callback(void *, void *), void * data) {
     int i;
     for (i = 0; i < XSTRUCT_GLUE(XNAME, members); i++) {
-        if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i))) {
+        if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i), data)) {
             return;
         }
     }
@@ -342,11 +342,11 @@ int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member) {
 // returns nonzero.
 // Example:
 //  void pixel_group_iter(pixel *structure, int group, int callback(void *)) { ... }
-void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *)) {
+void XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(void *, void *), void *data) {
     int i;
     for (i = 0; i < XSTRUCT_GLUE(XNAME, members); i++) {
         if (XSTRUCT_GLUE(XNAME, groups)[i] == group) {
-            if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i))) {
+            if (callback(XSTRUCT_GLUE(XNAME, member)(structure, i), data)) {
                 return;
             }
         }

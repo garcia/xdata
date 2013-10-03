@@ -116,13 +116,15 @@ the project.
         `XVALUE` option enabled).
 * `char *{name}_str(int value)`
 	- Get the string name of the given value, or NULL for invalid input.
-* `void {name}_iter(int callback(int))`
-	- Call the given function with each value until it returns nonzero.
+* `void {name}_iter(int callback(int, void *), void *data)`
+	- Call the given function with each value and a user-specified pointer
+		until it returns nonzero.
 * `int {name}_group(int value)`
 	- Get the group of the given value, or -1 for invalid input. Only available
         if `XGROUP` is enabled.
 * `void {name}_group_iter(int group, int callback(int))`
-	- Call the given function with each value until it returns nonzero.
+	- Call the given function with each value in the group and a user-specified
+		pointer until it returns nonzero.
 
 
 ### Structs
@@ -186,10 +188,12 @@ the project.
 	- Get the stringified name of a member, or NULL for invalid input.
 * `char *{name}_type_str({name} *structure, void *member)`
 	- Get the stringified type of a member, or NULL for invalid input.
-* `void {name}_iter({name} *structure, int callback(void *))`
-	- Call the given function with a pointer to each member until it returns
-		nonzero.
-* `char *{name}_print_member({name} *structure, void *member, const char *format)`
+* `void {name}_iter({name} *structure, int callback(void *, void *),
+		void *data)`
+	- Call the given function with a pointer to each member and a
+		user-specified pointer until it returns nonzero.
+* `char *{name}_print_member({name} *structure, void *member,
+		const char *format)`
 	- Allocate and return a formatted string containing the member's name and
 		value. The format string should contain a `%%s` for the name and a
 		`"%%%s` for the value, in that order. XData tries to guess how to print
@@ -201,9 +205,10 @@ the project.
 * `int {name}_group({name} *structure, void *member)`
 	- Get the group of a member, or -1 for invalid input. Only available if
 		`XGROUP` is enabled.
-* `void {name}_group_iter({name} *structure, int group, int callback(void *))`
-	- Call the given function with a pointer to each member in the group until
-		it returns nonzero.
+* `void {name}_group_iter({name} *structure, int group,
+		int callback(void *, void *), void *data)`
+	- Call the given function with a pointer to each member in the group and a
+		user-specified pointer until it returns nonzero.
 
 
 Examples
