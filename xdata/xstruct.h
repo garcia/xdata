@@ -32,7 +32,7 @@
 
 #ifndef XSTRUCT_H_
 #define XSTRUCT_H_
-// Everything in this block should only show up once per compilation unit.
+// Everything in this block only shows up once per compilation unit.
 
 #include <stdint.h>
 #include <stdio.h>
@@ -51,7 +51,7 @@
 const char *xstruct_format(char *typestr);
 
 #ifdef XDATA_OWNER
-// Everything in this block should only show up in a single compilation unit.
+// Everything in this block only shows up in a single compilation unit.
 
 // Retrieves the printf format string associated with the given type string.
 #define X(type, identifier, ...)        \
@@ -129,8 +129,8 @@ int XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group, int callback(XN
 #endif
 
 #ifdef XDATA_OWNER
-// Everything in this block should only show up in a single compilation unit
-// for each enum.
+// Everything in this block only shows up in a single compilation unit for each
+// struct.
 
 ////////// Variable definitions.
 
@@ -186,7 +186,7 @@ int XSTRUCT_GLUE(XNAME, index)(XNAME *structure, void *member) {
 #undef X
 
 // Get a pointer to the index-th member of the struct, or NULL for invalid
-// input.
+//  input.
 // Example:
 //  void *pixel_member(pixel *structure, int index) { ... }
 #define X(type, identifier, ...)        \
@@ -224,9 +224,9 @@ char *XSTRUCT_GLUE(XNAME, type_str)(XNAME *structure, void *member) {
 }
 
 // Call the given function with a pointer to the struct, each member, and a
-// user-specified pointer until it returns nonzero. If the callback returns
-// nonzero, this function returns the same value. Otherwise it returns zero
-// after the callback has been executed for each member.
+//  user-specified pointer until it returns nonzero. If the callback returns
+//  nonzero, this function returns the same value. Otherwise it returns zero
+//  after the callback has been executed for each member.
 // Example:
 //  int pixel_iter(pixel *structure, int callback(pixel *, void *, void *),
 //                  void *data) { ... }
@@ -244,9 +244,9 @@ int XSTRUCT_GLUE(XNAME, iter)(XNAME *structure,
 }
 
 // Allocate and return a formatted string containing the member's name and
-// value. The format string should contain a "%%s" for the name and a "%%%s"
-// for the value, in that order. XData tries to guess how to print the value
-// according to the type but falls back to the member's location in memory.
+//  value. The format string should contain a "%%s" for the name and a "%%%s"
+//  for the value, in that order. XData tries to guess how to print the value
+//  according to the type but falls back to the member's location in memory.
 // Example:
 //  char *pixel_print_member(pixel *structure, void *member, const char *format) { ... }
 #define X(type, identifier, ...)                                                \
@@ -287,7 +287,7 @@ char *XSTRUCT_GLUE(XNAME, print_member)(XNAME *structure, void *member, const ch
 #undef X
 
 // Allocate and return a formatted string containing each member's name and
-// value, concatenated by the given separator.
+//  value, concatenated by the given separator.
 // Example:
 //  char *pixel_print(pixel *structure, const char *format, const char *sep) { ... }
 char *XSTRUCT_GLUE(XNAME, print)(XNAME *structure, const char *format,
@@ -329,9 +329,9 @@ int XSTRUCT_GLUE(XNAME, group)(XNAME *structure, void *member) {
 }
 
 // Call the given function with a pointer to the struct, each member in the
-// group, and a user-specified pointer until it returns nonzero. If the
-// callback returns nonzero, this function returns the same value. Otherwise
-// it returns zero after the callback has been executed for each member.
+//  group, and a user-specified pointer until it returns nonzero. If the
+//  callback returns nonzero, this function returns the same value. Otherwise
+//  it returns zero after the callback has been executed for each member.
 // Example:
 //  int pixel_group_iter(pixel *structure, int group, int callback(pixel *,
 //						  void *, void *), void *data) { ... }

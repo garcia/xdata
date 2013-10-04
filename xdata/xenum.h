@@ -43,7 +43,7 @@
 
 #ifndef XENUM_H_
 #define XENUM_H_
-// Everything in this block should only show up once per compilation unit.
+// Everything in this block only shows up once per compilation unit.
 
 #include <ctype.h>
 #include <string.h>
@@ -54,11 +54,6 @@
 #define XENUM_GLUE_(prefix, suffix) prefix ## _ ## suffix
 #define XENUM_GLUE(prefix, suffix) XENUM_GLUE_(prefix, suffix)
 #define XENUM_FILE(name) XENUM_STR(enum.name.h)
-
-#ifdef XDATA_OWNER
-// Everything in this block should only show up in a single compilation unit.
-// There are no internal functions or variables here yet.
-#endif // XDATA_OWNER
 
 #endif // XENUM_H_
 
@@ -123,8 +118,8 @@ int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *
 #endif
 
 #ifdef XDATA_OWNER
-// Everything in this block should only show up in a single compilation unit
-// for each enum.
+// Everything in this block only shows up in a single compilation unit for each
+// enum.
 
 ////////// Variable definitions.
 
