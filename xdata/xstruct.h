@@ -8,11 +8,11 @@
 #define XENUM_H_ECLIPSE_PREPROCESSOR_BUSTER_
 #undef XENUM_H_ECLIPSE_PREPROCESSOR_BUSTER_
 
-// Don't allow nested includes. We'll be including the struct.*.h file that
-// included this file, but when we hit that same include statement, we need to
-// avoid infinitely recursing.
-#ifndef XSTRUCT_H_NESTED_
-#define XSTRUCT_H_NESTED_
+// Don't allow nested includes. We'll be including the datafile that included
+// this file, but when we hit that same include statement, we need to avoid
+// infinitely recursing.
+#ifndef XDATA_NESTED_
+#define XDATA_NESTED_
 
 // This usually won't be defined at this point, but just in case.
 #ifdef X
@@ -365,5 +365,5 @@ int XSTRUCT_GLUE(XNAME, group_iter)(XNAME *structure, int group,
 #define GROUP(g)
 #endif // XGROUP
 
-#undef XSTRUCT_H_NESTED_
-#endif // XSTRUCT_H_NESTED_
+#undef XDATA_NESTED_
+#endif // XDATA_NESTED_
