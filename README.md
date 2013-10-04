@@ -113,15 +113,19 @@ the project.
 		useful for enums that have members with explicitly specified values.
 * `char *{name}_str(int value)`
 	- Get the string name of the given value, or NULL for invalid input.
-* `void {name}_iter(int callback(int, void *), void *data)`
+* `int {name}_iter(int callback(int, void *), void *data)`
 	- Call the given function with each value and a user-specified pointer
-		until it returns nonzero.
+		until it returns nonzero. If the callback returns nonzero, this
+		function returns the same value. Otherwise it returns zero after the
+		callback has been executed for each member.
 * `int {name}_group(int value)`
 	- Get the group of the given value, or -1 for invalid input. Only available
         if `XGROUP` is enabled.
-* `void {name}_group_iter(int group, int callback(int))`
+* `int {name}_group_iter(int group, int callback(int))`
 	- Call the given function with each value in the group and a user-specified
-		pointer until it returns nonzero.
+		pointer until it returns nonzero. If the callback returns nonzero, this
+		function returns the same value. Otherwise it returns zero after the
+		callback has been executed for each member.
 
 
 ### Structs
@@ -181,10 +185,12 @@ the project.
 	- Get the stringified name of a member, or NULL for invalid input.
 * `char *{name}_type_str({name} *structure, void *member)`
 	- Get the stringified type of a member, or NULL for invalid input.
-* `void {name}_iter({name} *structure, int callback(void *, void *),
+* `int {name}_iter({name} *structure, int callback(void *, void *),
 		void *data)`
 	- Call the given function with a pointer to each member and a
-		user-specified pointer until it returns nonzero.
+		user-specified pointer until it returns nonzero. If the callback
+		returns nonzero, this function returns the same value. Otherwise it
+		returns zero after the callback has been executed for each member.
 * `char *{name}_print_member({name} *structure, void *member,
 		const char *format)`
 	- Allocate and return a formatted string containing the member's name and
@@ -198,10 +204,12 @@ the project.
 * `int {name}_group({name} *structure, void *member)`
 	- Get the group of a member, or -1 for invalid input. Only available if
 		`XGROUP` is enabled.
-* `void {name}_group_iter({name} *structure, int group,
+* `int {name}_group_iter({name} *structure, int group,
 		int callback(void *, void *), void *data)`
 	- Call the given function with a pointer to each member in the group and a
-		user-specified pointer until it returns nonzero.
+		user-specified pointer until it returns nonzero. If the callback
+		returns nonzero, this function returns the same value. Otherwise it
+		returns zero after the callback has been executed for each member.
 
 
 Examples

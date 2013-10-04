@@ -115,11 +115,11 @@ int XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, count)];
 
 unsigned int XENUM_GLUE(XNAME, index)(XNAME value);
 char *XENUM_GLUE(XNAME, str)(XNAME value);
-void XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data);
+int XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data);
 
 #if XGROUP
 int XENUM_GLUE(XNAME, group)(XNAME value);
-void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *data);
+int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *data);
 #endif
 
 #ifdef XDATA_OWNER
@@ -189,16 +189,20 @@ char *XENUM_GLUE(XNAME, str)(XNAME value) {
     return NULL;
 }
 
-// Call the given function with each value until it returns nonzero.
+// Call the given function with each value until it returns nonzero. If the
+//  callback returns nonzero, this function returns the same value. Otherwise
+//  it returns zero after the callback has been executed for each member.
 // Example:
-//  void color_iter(int callback(color)) { ... }
-void XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data) {
+//  int color_iter(int callback(color)) { ... }
+int XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data) {
     int i;
+    int rtn;
     for (i = 0; i < XENUM_GLUE(XNAME, count); i++) {
-        if (callback(XENUM_GLUE(XNAME, values)[i], data)) {
-            return;
+        if ((rtn = callback(XENUM_GLUE(XNAME, values)[i], data))) {
+            return rtn;
         }
     }
+    return 0;
 }
 
 #if XGROUP
@@ -213,18 +217,23 @@ int XENUM_GLUE(XNAME, group)(XNAME value) {
     return -1;
 }
 
-// Call the function with each value in the group until it returns nonzero.
+// Call the function with each value in the group until it returns nonzero. If
+//  the callback returns nonzero, this function returns the same value.
+//  Otherwise it returns zero after the callback has been executed for each
+//  member.
 // Example:
-//  void color_group_iter(int group, int callback(color)) { ... }
-void XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *data) {
+//  int color_group_iter(int group, int callback(color)) { ... }
+int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *data) {
     int i;
+    int rtn;
     for (i = 0; i < XENUM_GLUE(XNAME, count); i++) {
         if (XENUM_GLUE(XNAME, groups)[i] == group) {
-            if (callback(XENUM_GLUE(XNAME, values)[i], data)) {
-                return;
+            if ((rtn = callback(XENUM_GLUE(XNAME, values)[i], data))) {
+                return rtn;
             }
         }
     }
+    return 0;
 }
 #endif // XGROUP
 
