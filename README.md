@@ -210,7 +210,7 @@ the project.
 		const char *format)`
 	- Allocate and return a formatted string containing the member's name and
 		value. The format string should contain a `%%s` for the name and a
-		`"%%%s` for the value, in that order. XData tries to guess how to print
+		`%%%s` for the value, in that order. XData tries to guess how to print
 		the value according to the type but falls back to the member's location
 		in memory.
 * `char *{name}_print({name} *structure, const char *format, const char *sep)`
