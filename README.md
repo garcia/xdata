@@ -82,6 +82,14 @@ the project.
 * `XPREFIX`: Prefixes each enum member with a partial identifier.
 	- `[options]` component: `#define XPREFIX prefix`
 	- `[optional-fields]` component: none.
+* `XASSOC`: Creates an arbitrarily typed associative array.
+	- `[options]` components: `#define XASSOC 1`,
+		`#define XASSOC_NAME {assoc_name}`, `#define XASSOC_TYPE {assoc_type}`,
+		and optionally `#define XASSOC_INVALID {assoc_invalid}`, which sets the
+		return value for invalid input to the associated function (this
+		defaults to NULL).
+	- `[optional-fields]` component: `ASSOC({data})`, where `{data}` is a value
+		of type `{assoc_type}`.
 
 #### Variables
 
@@ -105,6 +113,9 @@ the project.
 * `int {name}_groups[{name}_count]`
 	- Holds the group of each identifier in an array. Only available if
 		`XGROUP` is enabled.
+* `{assoc_type} {name}_assoc_{assoc_name}[{name}_count]`
+	- Holds the data associated with each identifier in an array. Only
+		available if `XASSOC` is enabled.
 
 #### Methods
 
@@ -125,7 +136,11 @@ the project.
 	- Call the given function with each value in the group and a user-specified
 		pointer until it returns nonzero. If the callback returns nonzero, this
 		function returns the same value. Otherwise it returns zero after the
-		callback has been executed for each member.
+		callback has been executed for each member. Only available if `XGROUP`
+		is enabled.
+* `{assoc_type} {name}_{assoc_name}(int value)`
+	- Get the data associated with the given value, or `{assoc_invalid}` for
+		invalid input. Only available if `XASSOC` is enabled.
 
 
 ### Structs

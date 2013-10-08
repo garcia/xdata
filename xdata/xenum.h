@@ -35,11 +35,25 @@
 //  X(identifier)                // becomes foo_identifier
 #ifndef XPREFIX
 #define XPREFIX
-#endif
+#endif // XPREFIX
 // I don't know why I need 2 expansions this time, but it's rather annoying.
 #define XENUM_ID__(prefix, identifier) prefix ## identifier
 #define XENUM_ID_(prefix, identifier) XENUM_ID__(prefix, identifier)
 #define XENUM_ID(identifier) XENUM_ID_(XPREFIX, identifier)
+
+// XASSOC: create an arbitrarily typed associative array.
+#if XASSOC
+#define ASSOC(a)
+#ifndef XASSOC_NAME
+#error XASSOC_NAME must be defined if XASSOC is enabled
+#endif
+#ifndef XASSOC_TYPE
+#error XASSOC_TYPE must be defined if XASSOC is enabled
+#endif
+#ifndef XASSOC_DEFAULT
+#define XASSOC_DEFAULT NULL
+#endif
+#endif // XASSOC
 
 #ifndef XENUM_H_
 #define XENUM_H_
@@ -106,6 +120,14 @@ int XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, count)];
 
 #endif // XGROUP
 
+#if XASSOC
+
+// Holds the data associated with each identifier in an array.
+// TODO: example
+XASSOC_TYPE XENUM_GLUE(XENUM_GLUE(XNAME, assoc), XASSOC_NAME)[XENUM_GLUE(XNAME, count)];
+
+#endif // XASSOC
+
 ////////// Function declarations. Refer to their definitions for documentation.
 
 unsigned int XENUM_GLUE(XNAME, index)(XNAME value);
@@ -115,7 +137,11 @@ int XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data);
 #if XGROUP
 int XENUM_GLUE(XNAME, group)(XNAME value);
 int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *data);
-#endif
+#endif // XGROUP
+
+#if XASSOC
+XASSOC_TYPE XENUM_GLUE(XNAME, XASSOC_NAME)(XNAME value);
+#endif // XASSOC
 
 #ifdef XDATA_OWNER
 // Everything in this block only shows up in a single compilation unit for each
@@ -158,6 +184,22 @@ int XENUM_GLUE(XNAME, groups)[] = {
 
 #endif // XGROUP
 
+#if XASSOC
+
+// Create the associated data array.
+// TODO: example
+#define X(identifier, ...)
+#undef ASSOC
+#define ASSOC(a) a,
+XASSOC_TYPE XENUM_GLUE(XENUM_GLUE(XNAME, assoc), XASSOC_NAME)[] = {
+    #include XENUM_FILE(XNAME)
+};
+#undef ASSOC
+#define ASSOC(a)
+#undef X
+
+#endif // XASSOC
+
 ////////// Function definitions.
 
 // Get the index of the given value, or -1 for invalid input.
@@ -179,7 +221,7 @@ unsigned int XENUM_GLUE(XNAME, index)(XNAME value) {
 char *XENUM_GLUE(XNAME, str)(XNAME value) {
     int i = XENUM_GLUE(XNAME, index)(value);
     if (i >= 0) {
-        return XENUM_GLUE(XNAME, strs)[XENUM_GLUE(XNAME, index)(value)];
+        return XENUM_GLUE(XNAME, strs)[i];
     }
     return NULL;
 }
@@ -201,13 +243,14 @@ int XENUM_GLUE(XNAME, iter)(int callback(XNAME, void *), void *data) {
 }
 
 #if XGROUP
+
 // Get the group of the given value, or -1 for invalid input.
 // Example:
 //  int color_group(color value) { ... }
 int XENUM_GLUE(XNAME, group)(XNAME value) {
     int i = XENUM_GLUE(XNAME, index)(value);
     if (i >= 0) {
-        return XENUM_GLUE(XNAME, groups)[XENUM_GLUE(XNAME, index)(value)];
+        return XENUM_GLUE(XNAME, groups)[i];
     }
     return -1;
 }
@@ -230,7 +273,22 @@ int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *
     }
     return 0;
 }
+
 #endif // XGROUP
+
+#if XASSOC
+
+// Get the data associated with the given value, or NULL for invalid input.
+// TODO: example
+XASSOC_TYPE XENUM_GLUE(XNAME, XASSOC_NAME)(XNAME value) {
+	int i = XENUM_GLUE(XNAME, index)(value);
+    if (i >= 0) {
+        return XENUM_GLUE(XENUM_GLUE(XNAME, assoc), XASSOC_NAME)[i];
+    }
+    return XASSOC_DEFAULT;
+}
+
+#endif // XASSOC
 
 #endif // XDATA_OWNER
 
@@ -244,6 +302,14 @@ int XENUM_GLUE(XNAME, group_iter)(int group, int callback(XNAME, void *), void *
 #undef GROUP
 #define GROUP(g)
 #endif // XGROUP
+
+#if XASSOC
+#undef XASSOC
+#undef XASSOC_NAME
+#undef XASSOC_TYPE
+#undef ASSOC
+#define ASSOC(a)
+#endif
 
 #undef XPREFIX
 #undef XENUM_ID
