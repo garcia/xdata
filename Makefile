@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=
+CFLAGS=-std=c99
 OUTPUT=example
 C=example.c xdata/xdata.c
 

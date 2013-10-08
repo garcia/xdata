@@ -10,12 +10,12 @@ int color_callback(color c, void *data) {
     return 0;
 }
 
-int pos_callback(void *ptr, void *data) {
+int pos_callback(pixel *pix, void *ptr, void *data) {
     printf("%d ", *(int *)ptr);
     return 0;
 }
 
-int pixel_callback(void *ptr, void *data) {
+int pixel_callback(pixel *pix, void *ptr, void *data) {
     printf("%p ", ptr);
     return 0;
 }
